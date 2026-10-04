@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, cite the repository and the version used."
+type: software
+title: "WallGraph: floor-plan wall masks and skeleton graphs"
+authors:
+  - name: "WallGraph contributors"
+version: 0.1.0
+date-released: 2026-10-04
+repository-code: "https://github.com/chrischen-coder/wallgraph"
+url: "https://github.com/chrischen-coder/wallgraph"
+license: MIT
+abstract: "An experimental Python toolkit for pluggable wall segmentation, original-image coordinates, skeleton tracing, and private-data evaluation. No pretrained weights or datasets are distributed."

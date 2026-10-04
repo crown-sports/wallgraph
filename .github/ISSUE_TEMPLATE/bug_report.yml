@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a reproducible correctness or installation issue.
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Use synthetic geometry or a small code example. Do not attach private drawings, datasets, credentials, or model weights. Report security vulnerabilities through SECURITY.md."
+  - type: input
+    id: version
+    attributes:
+      label: Package version or commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: "OS, Python, relevant dependency versions, and CPU/CUDA provider."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: "Commands or synthetic input code, with configuration and output schema."
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and observed behavior
+    validations:
+      required: true

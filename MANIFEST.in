@@ -1,0 +1,18 @@
+include README.md LICENSE NOTICE.md CONTRIBUTING.md pyproject.toml
+include README.zh-CN.md CODE_OF_CONDUCT.md SECURITY.md CHANGELOG.md CITATION.cff
+include .github/PULL_REQUEST_TEMPLATE.md
+recursive-include src/wallgraph *.py
+recursive-include tests *.py
+recursive-include docs *.md
+recursive-include tools *.py
+recursive-include .github/workflows *.yml *.yaml
+recursive-include .github/ISSUE_TEMPLATE *.yml *.yaml
+prune data
+prune datasets
+prune private
+prune weights
+prune runs
+prune artifacts
+global-exclude *.pyc *.onnx *.pt *.pth *.pkl *.npy *.npz *.jsonl *.log
+global-exclude *.png *.jpg *.jpeg *.jfif *.webp *.gif *.svg
+include examples/simple.png

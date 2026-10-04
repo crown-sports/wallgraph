@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wallgraph"
+version = "0.1.0"
+description = "Floor-plan wall segmentation and topology-aware vectorization"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+classifiers = ["Development Status :: 3 - Alpha", "Intended Audience :: Developers", "Intended Audience :: Science/Research", "Programming Language :: Python :: 3 :: Only", "Programming Language :: Python :: 3.10", "Programming Language :: Python :: 3.12", "Topic :: Scientific/Engineering :: Image Processing"]
+dependencies = ["numpy>=1.26,<3", "opencv-python-headless>=4.10,<6", "Pillow>=10,<13", "scikit-image>=0.23,<0.27", "scipy>=1.13,<2"]
+
+[project.optional-dependencies]
+onnx = ["onnxruntime>=1.20,<2"]
+gpu = ["onnxruntime-gpu>=1.21,<2; sys_platform == 'linux'"]
+train = ["torch>=2.6,<3", "onnx>=1.17,<2"]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "build>=1.2,<2"]
+
+[project.urls]
+Repository = "https://github.com/chrischen-coder/wallgraph"
+Issues = "https://github.com/chrischen-coder/wallgraph/issues"
+Documentation = "https://github.com/chrischen-coder/wallgraph/blob/main/README.md"
+Changelog = "https://github.com/chrischen-coder/wallgraph/blob/main/CHANGELOG.md"
+
+[project.scripts]
+wallgraph = "wallgraph.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

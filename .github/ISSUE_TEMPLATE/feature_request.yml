@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose a capability with a concrete use case and evaluation plan.
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and intended behavior
+      description: "Describe the task and why the existing public API cannot solve it."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach and validation
+      description: "Explain contract changes, alternatives, and how to measure the result using synthetic or authorized private data."
+    validations:
+      required: true
