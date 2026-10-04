@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Explain core technical choices, paper lineage, adaptation scope, and actual reproduction lessons in English and Chinese.
+
 ## 0.1.0 — 2026-10-04
 
 First public experimental release of the independently packaged wall-processing toolkit.

@@ -1,8 +1,8 @@
 # WallGraph
 
-[中文](README.zh-CN.md) · [Design](docs/architecture.md) · [Validation](docs/validation.md) · [Releases](https://github.com/chrischen-coder/wallgraph/releases)
+[中文](README.zh-CN.md) · [Core methods and papers](docs/methods.md) · [Reproduction notes](docs/reproduction.md) · [Validation](docs/validation.md) · [Releases](https://github.com/chrischen-coder/wallgraph/releases)
 
-Convert floor-plan wall pixels into a binary mask and a graph of nodes, polylines, pixel thicknesses, and model confidence. WallGraph provides replaceable ONNX segmentation backends, optional overlapping tiles, skeleton tracing, a small training baseline, and evaluation commands.
+A floor-plan mask locates walls. A spatial application also needs their turns, junctions, and loops. WallGraph carries those pixels into original-coordinate polylines and an inspectable connection graph, while keeping the model and geometry stages replaceable.
 
 **Status: experimental engineering toolkit.** No pretrained weights or real datasets are distributed. Real drawings require your own appropriately licensed model. The model-free demo detects dark ink, including text and furniture; it is an interface example, not a trained wall detector.
 
@@ -10,9 +10,18 @@ Convert floor-plan wall pixels into a binary mask and a graph of nodes, polyline
 
 A segmentation mask does not describe where walls connect, which paths form loops, or how coordinates survive resizing. Model loading, preprocessing, geometry, and application logic often become coupled, making these properties difficult to validate.
 
-WallGraph separates them through backend and vectorizer protocols, immutable configuration, dependency injection, and explicit output contracts. Backends return probabilities in original-image coordinates. The pipeline cleans the mask and traces skeleton paths, including anchors for closed loops, without forcing walls to be horizontal or vertical.
+WallGraph restores probabilities to original image coordinates before cleanup and graph tracing. A backend can change without rewriting the geometry; a vectorizer can change without altering the segmentation mask. Configuration and output contracts make those choices visible. Paths preserve diagonal geometry and closed-loop anchors.
 
-The contribution is an inspectable engineering implementation and its contracts. U-Net, skeletonization, distance transforms, and overlap fusion are established methods; this project does not claim to invent them.
+## Core technical choices
+
+| Choice | What it makes usable |
+| --- | --- |
+| Junction clustering and skeleton edge tracing | Explicit node references, polyline paths, and closed-loop anchors |
+| Separate pixel evidence and geometry | Original coordinates, retained masks, pixel thickness, and probability confidence |
+| Probability fusion before thresholding | Optional overlapping tiles without hard binary seams; no claimed accuracy gain from this untested option |
+| Compact private-data training | A U-Net-style baseline with GroupNorm, padding-aware loss, validation selection, and ONNX export |
+
+The training baseline adapts [U-Net](https://arxiv.org/abs/1505.04597) and [Group Normalization](https://arxiv.org/abs/1803.08494); thinning uses the library's Zhang–Suen implementation. [Methods and papers](docs/methods.md) map each reference to actual code and explain the adaptation scope. [Reproduction notes](docs/reproduction.md) describe finding annotations, excluding padding, missing thin walls, and checking export precision. These are established methods organized into an independently implemented toolkit; no original-paper result or new foundational algorithm is claimed.
 
 ## Install and run
 
