@@ -1,6 +1,6 @@
 # Releases and downloads
 
-WallGraph is distributed on [GitHub Releases](https://github.com/chrischen-coder/wallgraph/releases). It has not been uploaded to PyPI. Initial 0.x releases are marked experimental pre-releases.
+WallGraph is distributed on [GitHub Releases](https://github.com/crown-sports/wallgraph/releases). It has not been uploaded to PyPI. Initial 0.x releases are marked experimental pre-releases.
 
 Each release supplies:
 

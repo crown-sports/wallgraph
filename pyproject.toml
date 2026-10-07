@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wallgraph"
-version = "0.1.0"
+version = "0.1.1"
 description = "Floor-plan wall segmentation and topology-aware vectorization"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,10 +19,10 @@ train = ["torch>=2.6,<3", "onnx>=1.17,<2"]
 dev = ["pytest>=8,<10", "ruff>=0.11,<1", "build>=1.2,<2"]
 
 [project.urls]
-Repository = "https://github.com/chrischen-coder/wallgraph"
-Issues = "https://github.com/chrischen-coder/wallgraph/issues"
-Documentation = "https://github.com/chrischen-coder/wallgraph/blob/main/README.md"
-Changelog = "https://github.com/chrischen-coder/wallgraph/blob/main/CHANGELOG.md"
+Repository = "https://github.com/crown-sports/wallgraph"
+Issues = "https://github.com/crown-sports/wallgraph/issues"
+Documentation = "https://github.com/crown-sports/wallgraph/blob/main/README.md"
+Changelog = "https://github.com/crown-sports/wallgraph/blob/main/CHANGELOG.md"
 
 [project.scripts]
 wallgraph = "wallgraph.cli:main"

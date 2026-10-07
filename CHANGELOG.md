@@ -1,8 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 — 2026-10-08
 
 - Explain core technical choices, paper lineage, adaptation scope, and actual reproduction lessons in English and Chinese.
+- Add practical use cases and a verified private-data training/import/export guide.
+- Connect wall-model review to PlanRegions' region-change diagnostics and continuity research roadmap.
+- Use the current `crown-sports` repository URLs. Segmentation and vectorization behavior are unchanged.
 
 ## 0.1.0 — 2026-10-04
 

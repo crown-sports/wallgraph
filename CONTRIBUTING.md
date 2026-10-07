@@ -5,7 +5,7 @@ Small fixes can be proposed directly as pull requests. For larger changes, descr
 ## Development
 
 ```bash
-git clone https://github.com/chrischen-coder/wallgraph.git
+git clone https://github.com/crown-sports/wallgraph.git
 cd wallgraph
 python -m venv .venv
 source .venv/bin/activate

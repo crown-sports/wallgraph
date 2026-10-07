@@ -1,8 +1,10 @@
 # WallGraph
 
-[English](README.md) · [核心方法与论文](docs/methods.zh-CN.md) · [复现实跑笔记](docs/reproduction.zh-CN.md) · [完整验证](docs/validation.md) · [发布版本](https://github.com/chrischen-coder/wallgraph/releases)
+[English](README.md) · [使用场景](docs/use-cases.zh-CN.md) · [训练指南](docs/training-guide.zh-CN.md) · [核心方法](docs/methods.zh-CN.md) · [完整验证](docs/validation.md) · [发布版本](https://github.com/crown-sports/wallgraph/releases)
 
 读懂一面墙，既要知道它占据哪些像素，也要知道它在哪里转弯、怎样与别的墙相接。WallGraph 把分割结果整理为原图坐标下的中心线、厚度和连接图，让下一步的空间分析有明确的几何依据。
+
+它适合接入已有墙体模型、搭建图纸复核工具，以及为区域分析准备坐标一致的输入。[使用场景](docs/use-cases.zh-CN.md)从具体任务说明如何接入；[训练指南](docs/training-guide.zh-CN.md)走完导入、数据预检、训练、导出和独立评测。
 
 **当前状态：实验工程工具库。** 提供独立实现、训练入口和评测方法，真实图纸需自备模型。现有 30 张标注测试仍有分割与下游区域退步，具体数字和区间保留在验证文档；数据和权重不公开。
 
@@ -17,11 +19,11 @@ WallGraph 将这些职责拆开：模型返回原图坐标的概率，清理流�
 从 GitHub 安装已发布的版本：
 
 ```bash
-python -m pip install "git+https://github.com/chrischen-coder/wallgraph.git@v0.1.0"
+python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.1.1"
 wallgraph demo --output runs/demo
 ```
 
-也可下载 [Release 中的 wheel](https://github.com/chrischen-coder/wallgraph/releases/tag/v0.1.0) 并校验 SHA256。以下开发安装命令在克隆本仓库后执行：
+也可下载 [Release 中的 wheel](https://github.com/crown-sports/wallgraph/releases/tag/v0.1.1) 并校验 SHA256。以下开发安装命令在克隆本仓库后执行：
 
 ```bash
 python -m venv .venv
@@ -70,6 +72,8 @@ geometry = result.to_dict()
 训练基线借鉴 [U-Net](https://arxiv.org/abs/1505.04597) 与 [Group Normalization](https://arxiv.org/abs/1803.08494)，二维骨架通过库调用 Zhang–Suen 方法。论文对应哪段代码、哪些地方做了改编，见 [核心方法与论文](docs/methods.zh-CN.md)。本工程重点在节点与闭环追踪、坐标一致性和可替换后端，基础算法沿用成熟方法。
 
 [复现实跑笔记](docs/reproduction.zh-CN.md) 记录了标注怎样找到、padding 怎样排除、细墙漏检怎样影响房间，以及为什么导出成功之后仍要检查数值。训练和配对结果来自真实执行，未重做原论文实验。完整结果见 [实测记录](docs/results.md)。
+
+改模型或阈值时，还可以接入 [PlanRegions 变化诊断](https://github.com/crown-sports/planregions/blob/main/docs/comparison.zh-CN.md)：找出哪些区域合并、分裂或消失，把墙体改动追溯到具体空间。[后续研究路线](https://github.com/crown-sports/planregions/blob/main/docs/research-roadmap.zh-CN.md)说明连续性、开口语义和新测试集怎样验证。
 
 ## 私有数据训练与评估
 
