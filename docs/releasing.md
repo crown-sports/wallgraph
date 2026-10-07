@@ -33,4 +33,6 @@ Review the exact repository tree and all archive members, including metadata. Us
 
 Push the reviewed source and let the matching commit pass CI. Tag that commit, create a draft release, upload all three artifacts and checksums, verify their hashes through the release asset API or a download, then publish the experimental release. No automated model or data upload is configured.
 
+The checks workflow also supports manual runs. If a push did not start a usable run, use `gh workflow run ci.yml --repo crown-sports/wallgraph --ref main`. Confirm the run's commit SHA and all three jobs (Python 3.10, Python 3.12, and training) before tagging; a successful run on an older commit does not validate the release.
+
 This process follows GitHub's [community profile](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/about-community-profiles-for-public-repositories), [release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository), and [Actions security](https://docs.github.com/en/actions/reference/security/secure-use) guidance. CI uses read-only repository permissions and pinned action commits.
