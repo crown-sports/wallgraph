@@ -27,7 +27,7 @@ planregions detect --walls runs/walls/walls.png \
 
 The single generated layout produces six wall paths and three regions. WallGraph writes `walls.png`, `walls.json`, and `walls.svg`. [PlanRegions](https://github.com/crown-sports/planregions) adds an exact instance map and region polygons. The metadata check verifies dimensions, coordinates, and wall polarity before the handoff. This verifies an integration path; a simple generated drawing cannot establish recognition accuracy.
 
-For real plans, follow the [ONNX input contract](../README.md#install-and-run). A compatible shape alone is insufficient: color order, normalization, class IDs, and output semantics must match the model's training.
+For real plans, follow the [ONNX input contract](../README.md#use-your-wall-model). A compatible shape alone is insufficient: color order, normalization, class IDs, and output semantics must match the model's training.
 
 ## Where its value ends today
 
