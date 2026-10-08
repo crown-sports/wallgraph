@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 — 2026-10-08
+
+- Explain the model-to-geometry integration on the README first screen and link the interactive downstream region example.
+- Link PlanRegions' local visual review for inspecting model changes. Segmentation, training and vectorization behavior are unchanged.
+
 ## 0.1.1 — 2026-10-08
 
 - Explain core technical choices, paper lineage, adaptation scope, and actual reproduction lessons in English and Chinese.

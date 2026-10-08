@@ -1,5 +1,11 @@
 # WallGraph
 
+**把墙体预测，变成应用能用的墙线与连接图。**
+
+接入已有模型，保留原图坐标，输出墙线、交点与闭环，方便图纸界面、几何处理和下游区域分析集成。
+
+[试用下游交互演示](https://crown-sports.github.io/planregions/) · [训练自己的模型](docs/training-guide.zh-CN.md) · [查看接入场景](docs/use-cases.zh-CN.md)
+
 [English](README.md) · [使用场景](docs/use-cases.zh-CN.md) · [训练指南](docs/training-guide.zh-CN.md) · [核心方法](docs/methods.zh-CN.md) · [完整验证](docs/validation.md) · [发布版本](https://github.com/crown-sports/wallgraph/releases)
 
 读懂一面墙，既要知道它占据哪些像素，也要知道它在哪里转弯、怎样与别的墙相接。WallGraph 把分割结果整理为原图坐标下的中心线、厚度和连接图，让下一步的空间分析有明确的几何依据。
@@ -19,11 +25,11 @@ WallGraph 将这些职责拆开：模型返回原图坐标的概率，清理流�
 从 GitHub 安装已发布的版本：
 
 ```bash
-python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.1.1"
+python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.1.2"
 wallgraph demo --output runs/demo
 ```
 
-也可下载 [Release 中的 wheel](https://github.com/crown-sports/wallgraph/releases/tag/v0.1.1) 并校验 SHA256。以下开发安装命令在克隆本仓库后执行：
+也可下载 [Release 中的 wheel](https://github.com/crown-sports/wallgraph/releases/tag/v0.1.2) 并校验 SHA256。以下开发安装命令在克隆本仓库后执行：
 
 ```bash
 python -m venv .venv
@@ -34,6 +40,8 @@ wallgraph detect --image examples/simple.png --output runs/simple
 ```
 
 公开素材只有 `examples/simple.png` 一张原创简单图。`demo` 使用相同的图形生成函数；它是接口演示，不是训练集，也不是准确率基准。没有提供真实数据、标注、训练权重或旧工程的模型。
+
+[下游浏览器示例](https://crown-sports.github.io/planregions/)展示了为什么还要看区域结构：去掉一个生成的墙像素，IoU 仍有 98.94%，房间却可能合并或消失。PlanRegions 0.3.0 的 `--html-output` 可为自己的对齐标签生成同类交互复核。真实墙体识别仍需接入自己的模型。
 
 结果包括 `walls.png`（255 为墙、0 为背景）、`walls.json`（节点、折线、厚度、置信度与分阶段耗时）和 `walls.svg`。每条折线通过 `start_node` / `end_node` 引用节点，闭合墙环允许首尾引用同一节点。
 
