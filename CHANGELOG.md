@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Put the actual six-path/four-node demo output beside its generated input in the single public figure.
+- Shorten both READMEs and describe concrete integration tasks.
+- Regenerate the figure from the pipeline in CI; runtime behavior and tagged releases are unchanged.
+
 ## 0.1.2 — 2026-10-08
 
 - Explain the model-to-geometry integration on the README first screen and link the interactive downstream region example.

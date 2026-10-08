@@ -24,6 +24,7 @@ jobs:
       - run: python -m pip install -e '.[dev,onnx]' onnx
       - run: ruff check . && ruff format --check .
       - run: pytest
+      - run: python tools/render_demo.py --check
       - run: python tools/release.py --check
       - run: python -m build
   training:
