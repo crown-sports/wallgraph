@@ -4,13 +4,13 @@
 
 [English](README.md) · [发布版本](https://github.com/crown-sports/wallgraph/releases)
 
-![左侧为生成的简单图纸，右侧为 WallGraph 实际输出的中心线与图节点](examples/simple.png)
+![生成的复杂户型图、实际灰度与 CLAHE 模型输入、预测掩码、红色墙体叠加、蓝色中心线与节点](examples/simple.png)
 
-左侧是生成的输入图，右侧按 demo 的 `walls.json` 绘制：**6 条墙体路径、4 个连接节点**。颜色区分路径，圆点旁是节点编号。这张图展示几何提取，不代表识别精度。
+同一张生成户型图、一次私有 ONNX 模型推理：原图 → 实际灰度通道 → 实际 CLAHE20 通道 → 最终墙体掩码 → 红色墙体叠加 → 蓝色中心线与节点。**25 条路径、21 个节点**，没有手工修图。模型第三通道 CLAHE40 未展示。这次预测把部分门洞、窗线连成了墙，客厅短隔墙仍有断线。[图像来源与参数](docs/demo-provenance.md)。
 
 ## 安装与运行
 
-需要 Python 3.10 或更新版本。无需模型即可运行 demo：
+需要 Python 3.10 或更新版本。另有无需模型的简单 demo：
 
 ```bash
 python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.1.2"
@@ -35,9 +35,16 @@ wallgraph detect --image /private/plan.png --model /private/wall.onnx \
   --preprocess rgb --wall-classes 1 --device cpu --output runs/prediction
 ```
 
-ONNX 接口接受 float32 NCHW RGB 输入，范围为 0–1，输出为二分类或多分类分割 logits。预处理和墙体类别需与自己的模型一致；概率输出加 `--output-kind probabilities`，动态空间尺寸加 `--input-size H W`。
+ONNX 接口接受 float32 NCHW 三通道输入，范围为 0–1，输出为二分类或多分类分割 logits。预处理和墙体类别需与自己的模型一致；概率输出加 `--output-kind probabilities`，动态空间尺寸加 `--input-size H W`。
 
-**真实识别需自备兼容模型。** 仓库不提供权重或真实数据集。demo 的墨迹检测也会把文字和家具当成墙，适合简单示例，不适合真实墙体识别。
+在 main 分支的源码目录中，可用自己的兼容模型重新生成上述六步图：
+
+```bash
+python tools/render_demo.py --model /private/wall.onnx --preprocess clahe \
+  --wall-classes 1 2 --output /private/steps.png
+```
+
+**真实识别需自备兼容模型。** 仓库不提供权重或真实数据集。CLI 的简单 demo 使用墨迹阈值，会把文字和家具也当成墙；六步图使用实际 ONNX 分割模型。两者都不是准确率评测。
 
 ## 具体解决哪些问题
 
@@ -48,7 +55,7 @@ ONNX 接口接受 float32 NCHW RGB 输入，范围为 0–1，输出为二分类
 | 不同的分割模型 | 复用同一套几何处理接口 | 可替换的 ONNX 或 Python 推理后端 |
 | 用于房间提取的墙体预测 | 给区域算法传入对齐的边界 | [PlanRegions](https://github.com/crown-sports/planregions) 可读取的掩码与元信息 |
 
-这是几何工具库。复核编辑器、CAD/BIM 导出、门的语义和尺寸识别仍需应用层实现。接入方式见[使用场景](docs/use-cases.zh-CN.md)。
+家具、文字和细墙都可能造成错漏。保留掩码与几何结果，方便先检查模型认出了什么，再把坐标用于图纸界面或区域分析。复核编辑器、CAD/BIM 导出、门的语义和尺寸识别仍需应用层实现。接入方式见[使用场景](docs/use-cases.zh-CN.md)。
 
 ## 实测与限制
 

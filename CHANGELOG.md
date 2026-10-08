@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-- Put the actual six-path/four-node demo output beside its generated input in the single public figure.
-- Shorten both READMEs and describe concrete integration tasks.
-- Regenerate the figure from the pipeline in CI; runtime behavior and tagged releases are unchanged.
+- Replace the single public figure with six measured stages from a program-generated apartment drawing: original, captured gray and CLAHE20 inputs, final wall mask, red wall overlay, and blue paths/nodes.
+- Record the private model digest and actual inference settings; the third input channel, CLAHE40, is not displayed. Models, real drawings, attachments, datasets and intermediate files remain private.
+- Add a source tool for rendering the stages with a user-supplied ONNX model. CI checks the reviewed figure’s hash and format; it does not repeat private-model inference.
+- Keep the READMEs concise and explain text/furniture interference, model adaptation and coordinate reuse. The model-free CLI demo, runtime algorithms and existing tagged releases are unchanged.
 
 ## 0.1.2 — 2026-10-08
 

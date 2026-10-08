@@ -60,10 +60,13 @@ def public_files() -> list[Path]:
             raise ValueError("required public file missing or symlinked")
         if path.suffix == ".png":
             if path.relative_to(ROOT).as_posix() != "examples/simple.png":
-                raise ValueError("only the single simple demo image can be published")
+                raise ValueError("only the single reviewed demo image can be published")
             with Image.open(path) as image:
-                if max(image.size) > 512:
+                if max(image.size) > 2048:
                     raise ValueError("demo image is larger than the public limit")
+                if image.format != "PNG" or image.mode != "RGB" or image.info:
+                    raise ValueError("demo image must be RGB PNG with no metadata")
+                image.load()
         else:
             source = path.read_text(encoding="utf-8")
             if any(re.search(pattern, source) for pattern in PATTERNS):

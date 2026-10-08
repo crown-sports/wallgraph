@@ -1,95 +1,88 @@
-"""Render the single public before/after figure from generated geometry only."""
+"""Check the reviewed public figure or render real stages with a supplied model."""
 
 import argparse
+import hashlib
+import json
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from draw_complex_demo import draw_complex_demo
+from PIL import Image
+from pipeline_figure import run_and_render
 
-from wallgraph import WallConfig, WallPipeline
-from wallgraph.backends import InkBackend
-from wallgraph.io import draw_demo
-
-COLORS = ("#2274a5", "#8558a3", "#16877a", "#c46922", "#d04565", "#627a26")
+PUBLIC_FIGURE = Path(__file__).resolve().parents[1] / "examples/simple.png"
+PUBLIC_FIGURE_SHA256 = "f6d711b40268d34c0b9fc81b7597f05c3aebbe53ef26a241d6a1e246d1f5f8e8"
 
 
-def make_figure() -> Image.Image:
-    image = draw_demo()
-    result = WallPipeline(InkBackend(), WallConfig()).run(image)
-    if len(result.segments) != 6 or len(result.junctions) != 4:
-        raise ValueError("generated demo geometry changed; review the figure and README counts")
-    board = Image.new("RGB", (512, 328), "#f8fafc")
-    draw = ImageDraw.Draw(board)
-    title = ImageFont.load_default(size=18)
-    body = ImageFont.load_default(size=14)
-    small = ImageFont.load_default(size=12)
-    draw.text((18, 17), "Input drawing", font=title, fill="#182d3b")
-    draw.text((275, 17), "WallGraph output", font=title, fill="#182d3b")
-    left = (12, 52)
-    right = (270, 52)
-    size = (230, 154)
-    board.paste(Image.fromarray(image).resize(size, Image.Resampling.NEAREST), left)
-    evidence = np.where(result.mask[..., None] > 0, 225, 255).astype(np.uint8)
-    evidence = np.repeat(evidence, 3, axis=2)
-    board.paste(Image.fromarray(evidence).resize(size, Image.Resampling.NEAREST), right)
-    height, width = result.mask.shape
-
-    def point(x: float, y: float) -> tuple[float, float]:
-        return right[0] + x * size[0] / width, right[1] + y * size[1] / height
-
-    for segment in result.segments:
-        draw.line(
-            [point(p.x, p.y) for p in segment.points],
-            fill=COLORS[segment.id % len(COLORS)],
-            width=3,
-            joint="curve",
-        )
-    for node in result.junctions:
-        x, y = point(node.point.x, node.point.y)
-        draw.ellipse((x - 4, y - 4, x + 4, y + 4), fill="#f3a52b", outline="#182d3b")
-        label = str(node.id)
-        label_x, label_y = x + 7, y + 3
-        bounds = draw.textbbox((label_x, label_y), label, font=small)
-        draw.rectangle((bounds[0] - 1, bounds[1] - 1, bounds[2] + 1, bounds[3] + 1), fill="white")
-        draw.text((label_x, label_y), label, font=small, fill="#182d3b")
-    draw.line((18, 224, 43, 224), fill=COLORS[0], width=3)
-    draw.text((51, 216), "Wall path", font=body, fill="#344c5c")
-    draw.ellipse((180, 220, 188, 228), fill="#f3a52b", outline="#182d3b")
-    draw.text((199, 216), "Connection node", font=body, fill="#344c5c")
-    draw.line((18, 249, 494, 249), fill="#dbe3e8", width=1)
-    draw.text(
-        (18, 262), "6 paths  |  4 nodes  |  384 x 256 original pixels", font=body, fill="#182d3b"
-    )
-    draw.text((18, 287), "walls.png  +  walls.json  +  walls.svg", font=body, fill="#344c5c")
-    draw.text(
-        (18, 310),
-        "Generated example; no trained model or dataset used.",
-        font=small,
-        fill="#536876",
-    )
-    return board
+def check_figure(path: Path) -> None:
+    """Check the reviewed asset, not inference reproducibility without weights."""
+    if hashlib.sha256(path.read_bytes()).hexdigest() != PUBLIC_FIGURE_SHA256:
+        raise ValueError("figure differs from the reviewed public asset")
+    with Image.open(path) as image:
+        if image.format != "PNG" or image.mode != "RGB" or image.size != (1560, 1000):
+            raise ValueError("reviewed figure must be a 1560x1000 RGB PNG")
+        if image.info:
+            raise ValueError("reviewed figure must contain no metadata")
+        image.load()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--model", type=Path)
     parser.add_argument(
-        "--output", type=Path, default=Path(__file__).resolve().parents[1] / "examples/simple.png"
+        "--image", type=Path, help="optional input; otherwise generate a complex plan"
     )
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--summary", type=Path, help="optional local JSON record; never uploaded")
+    parser.add_argument("--device", choices=("cpu", "cuda", "auto"), default="cpu")
+    parser.add_argument("--preprocess", choices=("rgb", "gray", "clahe"), default="clahe")
+    parser.add_argument("--wall-classes", type=int, nargs="+", default=[1, 2])
+    parser.add_argument("--output-kind", choices=("logits", "probabilities"), default="logits")
+    parser.add_argument("--threshold", type=float, default=0.5)
+    parser.add_argument("--close-radius", type=int, default=2)
     args = parser.parse_args()
-    figure = make_figure()
     if args.check:
-        if not args.output.is_file():
-            parser.error("demo figure is missing; run tools/render_demo.py")
-        with Image.open(args.output) as existing:
-            if existing.mode != "RGB" or not np.array_equal(
-                np.asarray(existing), np.asarray(figure)
-            ):
-                parser.error("demo figure differs from actual output; run tools/render_demo.py")
+        if args.model or args.image or args.summary:
+            parser.error(
+                "--check only validates the fixed public figure; do not supply model/image"
+            )
+        try:
+            check_figure(args.output or PUBLIC_FIGURE)
+        except (OSError, ValueError) as exc:
+            parser.error(str(exc))
+        print("Reviewed figure hash, dimensions and metadata verified; no inference run")
+        return
+    if args.model is None or args.output is None:
+        parser.error("rendering requires --model and --output; match options to your model")
+    if args.image is None:
+        rgb = draw_complex_demo()
     else:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        figure.save(args.output)
-    print("Generated demo figure verified" if args.check else "Generated input/output figure")
+        with Image.open(args.image) as image:
+            rgb = np.asarray(image.convert("RGB"))
+    figure, summary = run_and_render(
+        rgb,
+        args.model,
+        device=args.device,
+        preprocess=args.preprocess,
+        wall_classes=tuple(args.wall_classes),
+        threshold=args.threshold,
+        close_radius=args.close_radius,
+        output_kind=args.output_kind,
+    )
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    figure.save(args.output, format="PNG")
+    summary["source_kind"] = (
+        "generated_complex_plan" if args.image is None else "caller_supplied_image"
+    )
+    summary["figure_sha256"] = hashlib.sha256(args.output.read_bytes()).hexdigest()
+    if args.summary:
+        args.summary.parent.mkdir(parents=True, exist_ok=True)
+        args.summary.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    print(
+        f"Rendered one actual inference: {summary['measurements']['paths']} paths, "
+        f"{summary['measurements']['nodes']} nodes; no manual prediction edits"
+    )
 
 
 if __name__ == "__main__":

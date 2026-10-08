@@ -4,13 +4,13 @@ Turn a wall segmentation mask into **centerlines, junctions and closed loops in 
 
 [中文](README.zh-CN.md) · [Releases](https://github.com/crown-sports/wallgraph/releases)
 
-![Generated plan on the left; centerlines and graph nodes from the WallGraph demo on the right](examples/simple.png)
+![Generated apartment plan, actual gray and CLAHE model inputs, predicted mask, red wall overlay, and blue paths with nodes](examples/simple.png)
 
-Left: the generated input. Right: six wall paths and four connection nodes, drawn from the demo’s `walls.json`. Colors distinguish paths; numbered dots are nodes. This shows geometry extraction, not recognition accuracy.
+One generated apartment plan, one private ONNX model run: original → actual gray channel → actual CLAHE20 channel → final wall mask → red wall overlay → blue centerlines and nodes. **25 paths, 21 nodes**, with no manual edits. The model’s third channel, CLAHE40, is not shown. This run closes some door/window openings and leaves a short living-room divider disconnected. [Source and settings](docs/demo-provenance.md).
 
 ## Install and run
 
-Python 3.10+. Run the demo without a model:
+Python 3.10+. Try the separate, simple demo without a model:
 
 ```bash
 python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.1.2"
@@ -35,9 +35,16 @@ wallgraph detect --image /private/plan.png --model /private/wall.onnx \
   --preprocess rgb --wall-classes 1 --device cpu --output runs/prediction
 ```
 
-The ONNX adapter accepts float32 NCHW RGB input in 0–1 and binary or multiclass segmentation logits. Match preprocessing and wall class IDs to your model. For probability outputs, add `--output-kind probabilities`; dynamic spatial inputs need `--input-size H W`.
+The ONNX adapter accepts float32 NCHW three-channel input in 0–1 and binary or multiclass segmentation logits. Match preprocessing and wall class IDs to your model. For probability outputs, add `--output-kind probabilities`; dynamic spatial inputs need `--input-size H W`.
 
-**Bring your own compatible model.** No weights or real datasets are included. The demo's ink detector also finds text and furniture; it is suitable for the simple example, not real wall recognition.
+From a main source checkout, render the six stages above with your own compatible model:
+
+```bash
+python tools/render_demo.py --model /private/wall.onnx --preprocess clahe \
+  --wall-classes 1 2 --output /private/steps.png
+```
+
+**Bring your own compatible model.** No weights or real datasets are included. The CLI’s simple demo uses ink thresholding, which also finds text and furniture; the six-stage figure uses an actual ONNX segmentation model. Neither example measures recognition accuracy.
 
 ## Problems it helps solve
 
@@ -48,7 +55,7 @@ The ONNX adapter accepts float32 NCHW RGB input in 0–1 and binary or multiclas
 | Different segmentation models | A shared geometry interface | Replaceable ONNX or Python inference backend |
 | Wall predictions for room extraction | An aligned boundary input | A mask and metadata accepted by [PlanRegions](https://github.com/crown-sports/planregions) |
 
-This is a geometry toolkit. A review editor, CAD/BIM export, door semantics and dimension recognition remain application work. See [integration examples](docs/use-cases.md).
+Furniture, labels and missing thin walls can confuse a model. Keeping the mask beside the geometry lets you inspect these errors before reusing the coordinates. A review editor, CAD/BIM export, door semantics and dimension recognition remain application work. See [integration examples](docs/use-cases.md).
 
 ## Measured limits
 
