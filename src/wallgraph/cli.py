@@ -1,12 +1,17 @@
 import argparse
+import hashlib
 import json
 from pathlib import Path
+
+import numpy as np
+from PIL import Image
 
 from .backends import InkBackend, OnnxBackend
 from .benchmark import benchmark
 from .config import WallConfig
 from .evaluate import evaluate
 from .io import draw_demo, read_rgb, save_result
+from .masks import vectorize_mask
 from .pipeline import WallPipeline
 
 
@@ -34,6 +39,12 @@ def main() -> None:
         command.add_argument("--overlap", type=int, default=128)
         command.add_argument("--close-radius", type=int, default=0)
         command.add_argument("--threshold", type=float, default=0.5)
+    vectorize = commands.add_parser("vectorize", help="Import a supplied binary wall mask")
+    vectorize.add_argument("--mask", type=Path, required=True)
+    vectorize.add_argument("--wall-value", type=int, choices=(0, 255), default=255)
+    vectorize.add_argument("--output", type=Path, required=True)
+    vectorize.add_argument("--close-radius", type=int, default=0)
+    vectorize.add_argument("--min-component-area", type=int, default=1)
     train = commands.add_parser("train")
     train.add_argument("--train-manifest", type=Path, required=True)
     train.add_argument("--val-manifest", type=Path, required=True)
@@ -48,6 +59,30 @@ def main() -> None:
     export.add_argument("--output", type=Path, required=True)
     export.add_argument("--size", type=int, default=512)
     args = parser.parse_args()
+    if args.command == "vectorize":
+        try:
+            for name in ("walls.png", "walls.json", "walls.svg"):
+                target = args.output / name
+                if target.resolve() == args.mask.resolve() or (
+                    target.exists() and args.mask.exists() and target.samefile(args.mask)
+                ):
+                    raise ValueError("outputs must not overwrite the source mask")
+            with Image.open(args.mask) as image:
+                mask = np.asarray(image)
+            result = vectorize_mask(
+                mask,
+                WallConfig(
+                    close_radius=args.close_radius,
+                    min_component_area=args.min_component_area,
+                ),
+                wall_value=args.wall_value,
+            )
+            result.metadata["source_sha256"] = hashlib.sha256(args.mask.read_bytes()).hexdigest()
+            save_result(result, args.output)
+        except (ValueError, OSError, TypeError) as error:
+            parser.error(str(error))
+        print(json.dumps({"segment_count": len(result.segments), "metadata": result.metadata}))
+        return
     if args.command == "train":
         from .training import train_model
 

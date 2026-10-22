@@ -27,6 +27,23 @@ Open `runs/demo/walls.svg` to see the result.
 
 The graph uses the original image size: origin at the top left, x right, y down, units in pixels. Closed loops retain an anchor node. There is no physical scale inference.
 
+## Use an existing wall mask
+
+Available from a source checkout; existing tagged releases do not include this command.
+
+Import reviewed or externally predicted binary labels directly, without a model:
+
+```bash
+wallgraph vectorize --mask /private/walls.png --output runs/vectorized
+```
+
+Use `--wall-value 0` for black walls. The input must be a 2D uint8 PNG with only
+0 and 255; RGB and grayscale probabilities are rejected. The original pixel grid
+and every wall pixel are retained by default. `--close-radius` and
+`--min-component-area` explicitly opt into cleanup. Output metadata records the
+source digest, changed pixel count and mask-based confidence semantics. Pass the
+resulting `walls.png` and `walls.json` directly to PlanRegions.
+
 ## Use your wall model
 
 ```bash
