@@ -17,3 +17,4 @@ prune artifacts
 global-exclude *.pyc *.onnx *.pt *.pth *.pkl *.npy *.npz *.jsonl *.log
 global-exclude *.png *.jpg *.jpeg *.jfif *.webp *.gif *.svg
 include examples/simple.png
+include examples/workflow.png

@@ -1,17 +1,13 @@
-# Where WallGraph fits
+# Wall geometry notes
 
-**User and decision:** a developer with wall labels needs paths and shared junction IDs for a drawing interface or downstream geometry. The model-free `vectorize` path is the shortest entry. With only scans, first bring a compatible model; [training/import instructions](training-guide.md) and [Chinese instructions](training-guide.zh-CN.md) are available, but public weights are not supplied.
+[README](../README.md) · [中文](../README.zh-CN.md)
 
-| Current, checkable value | Evidence | Boundary |
-| --- | --- | --- |
-| Preserve supplied binary pixels and original coordinates unless cleanup is explicit | [`masks.py`](../src/wallgraph/masks.py), [`test_mask_import.py`](../tests/test_mask_import.py) | Membership scores from an imported mask are not detector probabilities |
-| Expose paths, junctions and the closing edge of a ring | [`vectorize.py`](../src/wallgraph/vectorize.py), ring and T-junction tests in [`test_geometry.py`](../tests/test_geometry.py) / [`test_mask_import.py`](../tests/test_mask_import.py) | Skeletonization and simplification still depend on mask quality |
-| Feed exact original-grid results into room/measurement tools | [Shared executable walkthrough](https://github.com/crown-sports/planportals/blob/main/docs/workflow.md) | No physical scale, opening semantics or CAD/BIM model is inferred here |
+`vectorize` starts with a binary wall mask. It skeletonizes the walls, traces paths between junctions and simplifies those paths. Coordinates stay on the source grid. The default import preserves every wall pixel; cleanup is opt-in. See [mask import](../src/wallgraph/masks.py) and [graph tracing](../src/wallgraph/vectorize.py).
 
-Use a short OpenCV/scikit-image script for a one-off mask operation. WallGraph packages the graph export and validation choices when an application must retain them consistently. [scikit-image's skeletonization examples](https://scikit-image.org/docs/stable/auto_examples/edges/plot_skeleton.html) remain an appropriate starting point for the underlying operation. A general segmentation model is upstream: it proposes wall pixels; this package exposes what happened to those pixels. No comparative speed or accuracy advantage over those tools is established.
+A closed ring needs its final segment back to the first point. Branches need shared node IDs. Those cases, plus unchanged mask imports, are covered in [geometry tests](../tests/test_geometry.py) and [mask tests](../tests/test_mask_import.py). A path is a centerline, not either face of a wall.
 
-[Validation](validation.md) retains the unfavorable results too: downstream region PQ fell under the evaluated cleanup, and raw segmentation scored better on wall IoU. The private-data/model evaluation is documented but not independently reproducible from this repository; the generated examples and tests are reproducible.
+The README figure reads the mask and JSON produced by the [shared generated example](https://github.com/crown-sports/planportals/blob/main/docs/workflow.md). The blue lines are exported polylines; circles are exported junctions. No detector or manual geometry correction is involved. The separate [ONNX figure](../examples/simple.png) uses a private model; its [settings](demo-provenance.md) are recorded, but the weights are not distributed.
 
-**Next priorities:** publish permissioned continuity/opening failure cases with correction history, then validate whether graph and room errors improve together. Reusable contracts and tested failure handling are useful engineering today; proprietary data, unique algorithms, production reliability and a durable competitive advantage have not been demonstrated.
+If you only need a mask operation, OpenCV or scikit-image may be enough. This package is for retaining paths, junctions and import metadata across a drawing workflow. It does not infer room types, doors or scale. For model integration, start with the [training/import guide](training-guide.md) ([中文](training-guide.zh-CN.md)).
 
-The only observed public request, [issue #1](https://github.com/crown-sports/wallgraph/issues/1), asks vaguely for import/training details. It motivates making these existing guides easier to find, not assuming a particular training feature or validated market demand.
+Mask quality still matters: a missing wall can join rooms, and closing a real opening can change the drawing. The [private evaluation](validation.md) includes the lower downstream region score after cleanup; use it to understand the current failure modes.
