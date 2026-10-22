@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-10-22
 
 - Preserve the anchor and final closing edge when simplifying wall loops, so JSON/SVG paths and measured perimeter remain closed.
 

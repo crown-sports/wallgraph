@@ -13,7 +13,7 @@ One generated apartment plan, one private ONNX model run: original → actual gr
 Python 3.10+. Try the separate, simple demo without a model:
 
 ```bash
-python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.1.2"
+python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
 wallgraph demo --output runs/demo
 ```
 
@@ -29,7 +29,7 @@ The graph uses the original image size: origin at the top left, x right, y down,
 
 ## Use an existing wall mask
 
-Available from a source checkout; existing tagged releases do not include this command.
+Available in v0.2.0; install the release above to use this command.
 
 Import reviewed or externally predicted binary labels directly, without a model:
 
@@ -47,7 +47,7 @@ resulting `walls.png` and `walls.json` directly to PlanRegions.
 ## Use your wall model
 
 ```bash
-python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.1.2"
+python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
 wallgraph detect --image /private/plan.png --model /private/wall.onnx \
   --preprocess rgb --wall-classes 1 --device cpu --output runs/prediction
 ```

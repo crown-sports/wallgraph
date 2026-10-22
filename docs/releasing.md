@@ -42,4 +42,17 @@ The current main README uses `examples/simple.png` as the single six-stage figur
 
 `python tools/render_demo.py --check` verifies the reviewed figure’s fixed hash and format. It does not run or reconstruct the private model in CI. To render a new result, supply your own compatible model to `tools/render_demo.py`; inspect the prediction and update the figure check before publication. Keep model files and intermediate outputs outside the public tree. The CLI’s model-free `wallgraph demo` continues to generate its separate simple input in memory.
 
-This update changes main only. Existing v0.1.2 assets and earlier tags remain their original snapshots. The figure illustrates one execution, not recognition accuracy or a trained model available for download.
+The v0.2.0 release includes this figure and the new mask-import command. Existing v0.1.2 assets and earlier tags remain their original snapshots. The figure illustrates one execution, not recognition accuracy or a trained model available for download.
+
+## v0.2.0 compatibility
+
+This release adds commands without changing the existing input/export schemas.
+Install the pinned tag with `python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.0"`,
+or use the matching release wheel. This is a GitHub experimental pre-release;
+no PyPI upload or pretrained-model download is configured.
+
+Build artifacts from a clean export of the exact reviewed release commit into a
+new output directory. Do not reuse a previous release's `dist/` files. Verify
+package metadata and imported `__version__` from the wheel in a fresh environment,
+then record SHA-256 checksums only for that version's wheel, sdist and audited
+source ZIP. Existing tags and assets retain their original contents.
