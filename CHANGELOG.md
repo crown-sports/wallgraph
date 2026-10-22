@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Preserve the anchor and final closing edge when simplifying wall loops, so JSON/SVG paths and measured perimeter remain closed.
+
 - Add model-free `vectorize` CLI and `vectorize_mask` API for strict binary wall masks, preserving original pixels by default and reporting cleanup changes and source provenance.
 
 - Replace the single public figure with six measured stages from a program-generated apartment drawing: original, captured gray and CLAHE20 inputs, final wall mask, red wall overlay, and blue paths/nodes.

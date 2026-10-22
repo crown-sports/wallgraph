@@ -98,7 +98,20 @@ class SkeletonVectorizer:
                 xy = np.array([(x, y) for y, x in path], np.float32)
                 xy[0] = (nodes[start_id].point.x, nodes[start_id].point.y)
                 xy[-1] = (nodes[end_id].point.x, nodes[end_id].point.y)
-                simplified = cv2.approxPolyDP(xy[:, None], self.tolerance, False).reshape(-1, 2)
+                if start_id == end_id:
+                    # OpenCV may treat coincident endpoints as a closed contour and
+                    # omit its closing point. Split the ring at its furthest pixel
+                    # so both simplifications retain the graph anchor explicitly.
+                    split = int(np.linalg.norm(xy - xy[0], axis=1).argmax())
+                    first = cv2.approxPolyDP(xy[: split + 1, None], self.tolerance, False).reshape(
+                        -1, 2
+                    )
+                    second = cv2.approxPolyDP(xy[split:, None], self.tolerance, False).reshape(
+                        -1, 2
+                    )
+                    simplified = np.concatenate((first[:-1], second))
+                else:
+                    simplified = cv2.approxPolyDP(xy[:, None], self.tolerance, False).reshape(-1, 2)
                 length = float(np.linalg.norm(np.diff(simplified, axis=0), axis=1).sum())
                 if len(simplified) < 2 or length < self.min_length:
                     continue

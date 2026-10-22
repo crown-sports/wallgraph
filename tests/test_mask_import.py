@@ -68,3 +68,20 @@ def test_cli_exports_contract_and_rejects_ambiguous_or_overwritten_inputs(tmp_pa
     command[command.index(str(path))] = str(output / "walls.png")
     assert subprocess.run(command, capture_output=True).returncode == 2
     assert (output / "walls.png").read_bytes() == before
+
+
+def test_closed_ring_retains_anchor_closing_edge_and_perimeter():
+    mask = np.zeros((90, 120), np.uint8)
+    mask[10:15, 10:-10] = mask[-15:-10, 10:-10] = 255
+    mask[10:-10, 10:15] = mask[10:-10, -15:-10] = 255
+    result = vectorize_mask(mask)
+    assert len(result.segments) == 1
+    ring = result.segments[0]
+    anchor = result.junctions[0].point
+    assert ring.start_node == ring.end_node == result.junctions[0].id
+    assert ring.points[0] == ring.points[-1] == anchor
+    assert 310 < ring.length_px < 325
+    measured = sum(
+        np.hypot(b.x - a.x, b.y - a.y) for a, b in zip(ring.points, ring.points[1:], strict=False)
+    )
+    assert ring.length_px == pytest.approx(measured, rel=1e-6)
