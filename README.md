@@ -2,11 +2,11 @@
 
 Turn a wall segmentation mask into **centerlines, junctions and closed loops in the original image coordinates**.
 
+For developers building floor-plan review or measurement tools who already have a wall mask, or can supply a compatible segmentation model ([training/import guide](docs/training-guide.md); no public weights). Start here to turn pixels into selectable wall paths; start with PlanRegions if you only need room instances.
+
 [中文](README.zh-CN.md) · [Releases](https://github.com/crown-sports/wallgraph/releases)
 
-![Generated apartment plan, actual gray and CLAHE model inputs, predicted mask, red wall overlay, and blue paths with nodes](examples/simple.png)
-
-One generated apartment plan, one private ONNX model run: original → actual gray channel → actual CLAHE20 channel → final wall mask → red wall overlay → blue centerlines and nodes. **25 paths, 21 nodes**, with no manual edits. The model’s third channel, CLAHE40, is not shown. This run closes some door/window openings and leaves a short living-room divider disconnected. [Source and settings](docs/demo-provenance.md).
+[Choose a package and run one shared workflow](https://github.com/crown-sports/planportals/blob/main/docs/workflow.md) · [Evidence and product boundaries](docs/product.md)
 
 ## Install and run
 
@@ -43,6 +43,12 @@ and every wall pixel are retained by default. `--close-radius` and
 `--min-component-area` explicitly opt into cleanup. Output metadata records the
 source digest, changed pixel count and mask-based confidence semantics. Pass the
 resulting `walls.png` and `walls.json` directly to PlanRegions.
+
+## Optional model example
+
+![Generated apartment plan, actual gray and CLAHE model inputs, predicted mask, red wall overlay, and blue paths with nodes](examples/simple.png)
+
+One generated apartment plan, one private ONNX model run: original → actual gray channel → actual CLAHE20 channel → final wall mask → red wall overlay → blue centerlines and nodes. **25 paths, 21 nodes**, with no manual edits. The model’s third channel, CLAHE40, is not shown. This run closes some door/window openings and leaves a short living-room divider disconnected. [Source and settings](docs/demo-provenance.md).
 
 ## Use your wall model
 
