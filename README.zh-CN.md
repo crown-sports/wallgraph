@@ -2,11 +2,11 @@
 
 把墙体分割掩码变成**原图坐标下的中心线、交点和闭环**。
 
+适合已有墙体掩码、或能提供兼容分割模型的图纸工具开发者（[训练与导入](docs/training-guide.zh-CN.md)，无公开权重）。需要可选中、可测量的墙线路径时从这里开始；只需要房间实例时，可直接从 PlanRegions 开始。
+
 [English](README.md) · [发布版本](https://github.com/crown-sports/wallgraph/releases)
 
-![生成的复杂户型图、实际灰度与 CLAHE 模型输入、预测掩码、红色墙体叠加、蓝色中心线与节点](examples/simple.png)
-
-同一张生成户型图、一次私有 ONNX 模型推理：原图 → 实际灰度通道 → 实际 CLAHE20 通道 → 最终墙体掩码 → 红色墙体叠加 → 蓝色中心线与节点。**25 条路径、21 个节点**，没有手工修图。模型第三通道 CLAHE40 未展示。这次预测把部分门洞、窗线连成了墙，客厅短隔墙仍有断线。[图像来源与参数](docs/demo-provenance.md)。
+[四库选择与完整试用：测量、结构变化、封门](https://github.com/crown-sports/planportals/blob/main/docs/workflow.zh-CN.md) · [实现证据与产品边界](docs/product.md)
 
 ## 安装与运行
 
@@ -26,6 +26,18 @@ wallgraph demo --output runs/demo
 | `walls.png` | 保留二值掩码，或传入区域分析 |
 
 坐标对应原图：左上角为原点，x 向右、y 向下，单位为像素。闭合墙环保留锚点节点。工具不推算真实比例尺。
+
+## 已有墙体掩码直接导入
+
+v0.2.0 新增 `wallgraph vectorize --mask /private/walls.png --output runs/vectorized`。
+支持 `--wall-value 0` 黑墙模式；默认保留原尺寸和全部二值像素。输出可直接交给 PlanRegions，
+元数据记录源文件摘要、改动像素数；掩码成员关系不代表模型置信度。
+
+## 自备模型的示例
+
+![生成的复杂户型图、实际灰度与 CLAHE 模型输入、预测掩码、红色墙体叠加、蓝色中心线与节点](examples/simple.png)
+
+同一张生成户型图、一次私有 ONNX 模型推理：原图 → 实际灰度通道 → 实际 CLAHE20 通道 → 最终墙体掩码 → 红色墙体叠加 → 蓝色中心线与节点。**25 条路径、21 个节点**，没有手工修图。模型第三通道 CLAHE40 未展示。这次预测把部分门洞、窗线连成了墙，客厅短隔墙仍有断线。[图像来源与参数](docs/demo-provenance.md)。
 
 ## 接入自己的墙体模型
 
@@ -70,9 +82,3 @@ python tools/render_demo.py --model /private/wall.onnx --preprocess clahe \
 [贡献指南](CONTRIBUTING.md) · [安全报告](SECURITY.md) · [行为准则](CODE_OF_CONDUCT.md) · [发布检查](docs/releasing.md)
 
 仓库代码使用 MIT 许可；外部模型和数据保留各自许可。见[来源说明](NOTICE.md)。软件引用信息见 `CITATION.cff`。
-
-## 已有墙体掩码直接导入
-
-v0.2.0 新增 `wallgraph vectorize --mask /private/walls.png --output runs/vectorized`。
-支持 `--wall-value 0` 黑墙模式；默认保留原尺寸和全部二值像素。输出可直接交给 PlanRegions，
-元数据记录源文件摘要、改动像素数；掩码成员关系不代表模型置信度。
