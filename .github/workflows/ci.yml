@@ -27,6 +27,12 @@ jobs:
       - run: python tools/render_demo.py --check
       - run: python tools/release.py --check
       - run: python -m build
+      - name: Test the unpacked source distribution
+        run: |
+          package_dir=$(mktemp -d)
+          tar -xzf dist/wallgraph-*.tar.gz -C "$package_dir"
+          cd "$package_dir"/wallgraph-*
+          PYTHONPATH=src python -m pytest
   training:
     runs-on: ubuntu-latest
     steps:

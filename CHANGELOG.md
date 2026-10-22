@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
-
+## 0.2.0 — 2026-10-22
+- Include the required `.gitignore` in source distributions and verify the unpacked archive in CI.
+- Preserve the anchor and final closing edge when simplifying wall loops, so JSON/SVG paths and measured perimeter remain closed.
+- Add model-free `vectorize` CLI and `vectorize_mask` API for strict binary wall masks, preserving original pixels by default and reporting cleanup changes and source provenance.
 - Replace the single public figure with six measured stages from a program-generated apartment drawing: original, captured gray and CLAHE20 inputs, final wall mask, red wall overlay, and blue paths/nodes.
 - Record the private model digest and actual inference settings; the third input channel, CLAHE40, is not displayed. Models, real drawings, attachments, datasets and intermediate files remain private.
 - Add a source tool for rendering the stages with a user-supplied ONNX model. CI checks the reviewed figure’s hash and format; it does not repeat private-model inference.

@@ -1,3 +1,4 @@
+include .gitignore
 include README.md LICENSE NOTICE.md CONTRIBUTING.md pyproject.toml
 include README.zh-CN.md CODE_OF_CONDUCT.md SECURITY.md CHANGELOG.md CITATION.cff
 include .github/PULL_REQUEST_TEMPLATE.md

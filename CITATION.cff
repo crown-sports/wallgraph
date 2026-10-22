@@ -4,8 +4,8 @@ type: software
 title: "WallGraph: floor-plan wall masks and skeleton graphs"
 authors:
   - name: "WallGraph contributors"
-version: 0.1.2
-date-released: 2026-10-08
+version: 0.2.0
+date-released: 2026-10-22
 repository-code: "https://github.com/crown-sports/wallgraph"
 url: "https://github.com/crown-sports/wallgraph"
 license: MIT

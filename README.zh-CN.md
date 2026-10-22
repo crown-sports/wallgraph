@@ -13,7 +13,7 @@
 需要 Python 3.10 或更新版本。另有无需模型的简单 demo：
 
 ```bash
-python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.1.2"
+python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
 wallgraph demo --output runs/demo
 ```
 
@@ -30,7 +30,7 @@ wallgraph demo --output runs/demo
 ## 接入自己的墙体模型
 
 ```bash
-python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.1.2"
+python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
 wallgraph detect --image /private/plan.png --model /private/wall.onnx \
   --preprocess rgb --wall-classes 1 --device cpu --output runs/prediction
 ```
@@ -70,3 +70,9 @@ python tools/render_demo.py --model /private/wall.onnx --preprocess clahe \
 [贡献指南](CONTRIBUTING.md) · [安全报告](SECURITY.md) · [行为准则](CODE_OF_CONDUCT.md) · [发布检查](docs/releasing.md)
 
 仓库代码使用 MIT 许可；外部模型和数据保留各自许可。见[来源说明](NOTICE.md)。软件引用信息见 `CITATION.cff`。
+
+## 已有墙体掩码直接导入
+
+v0.2.0 新增 `wallgraph vectorize --mask /private/walls.png --output runs/vectorized`。
+支持 `--wall-value 0` 黑墙模式；默认保留原尺寸和全部二值像素。输出可直接交给 PlanRegions，
+元数据记录源文件摘要、改动像素数；掩码成员关系不代表模型置信度。
