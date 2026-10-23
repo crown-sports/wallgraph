@@ -1,56 +1,41 @@
 # WallGraph
 
-Turn a wall segmentation mask into **centerlines, junctions and closed loops in the original image coordinates**.
+Extract centerlines and junctions from a binary wall mask, in the original image coordinates.
 
-For developers building floor-plan review or measurement tools who already have a wall mask, or can supply a compatible segmentation model ([training/import guide](docs/training-guide.md); no public weights). Start here to turn pixels into selectable wall paths; start with PlanRegions if you only need room instances.
+[中文](README.zh-CN.md) · [v0.2.0](https://github.com/crown-sports/wallgraph/releases/tag/v0.2.0)
 
-[中文](README.zh-CN.md) · [Releases](https://github.com/crown-sports/wallgraph/releases)
+![Binary wall mask beside the extracted blue paths and junctions](examples/workflow.png)
 
-[Choose a package and run one shared workflow](https://github.com/crown-sports/planportals/blob/main/docs/workflow.md) · [Evidence and product boundaries](docs/product.md)
+Generated example: **11 paths, 7 junctions**, with all 61,849 supplied wall pixels retained. [Run this five-room example](https://github.com/crown-sports/planportals/blob/main/docs/workflow.md).
 
-## Install and run
+## Try it
 
-Python 3.10+. Try the separate, simple demo without a model:
+Python 3.10+. The small standalone demo needs no model:
 
 ```bash
 python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
 wallgraph demo --output runs/demo
 ```
 
-Open `runs/demo/walls.svg` to see the result.
+Open `runs/demo/walls.svg`. `walls.json` contains polylines, endpoint node IDs, pixel thickness and scores; `walls.png` contains the wall mask.
 
-| Output | What you can use it for |
-| --- | --- |
-| `walls.svg` | View the extracted wall paths |
-| `walls.json` | Draw wall paths, follow endpoint connections, read pixel thickness and confidence |
-| `walls.png` | Keep the binary mask or pass it to region analysis |
-
-The graph uses the original image size: origin at the top left, x right, y down, units in pixels. Closed loops retain an anchor node. There is no physical scale inference.
-
-## Use an existing wall mask
-
-Available in v0.2.0; install the release above to use this command.
-
-Import reviewed or externally predicted binary labels directly, without a model:
+For a mask you already have:
 
 ```bash
 wallgraph vectorize --mask /private/walls.png --output runs/vectorized
 ```
 
-Use `--wall-value 0` for black walls. The input must be a 2D uint8 PNG with only
-0 and 255; RGB and grayscale probabilities are rejected. The original pixel grid
-and every wall pixel are retained by default. `--close-radius` and
-`--min-component-area` explicitly opt into cleanup. Output metadata records the
-source digest, changed pixel count and mask-based confidence semantics. Pass the
-resulting `walls.png` and `walls.json` directly to PlanRegions.
+Use a 2D uint8 PNG containing only 0 and 255; white means wall. Add `--wall-value 0` for black walls. RGB images and probability maps are rejected. Pixels stay unchanged unless you request cleanup with `--close-radius` or `--min-component-area`.
 
-## Optional model example
+## Use the paths
 
-![Generated apartment plan, actual gray and CLAHE model inputs, predicted mask, red wall overlay, and blue paths with nodes](examples/simple.png)
+Coordinates start at the top left: x right, y down, units in pixels. Use the paths to draw selectable walls, follow shared endpoint IDs, or pass the mask and metadata to [PlanRegions](https://github.com/crown-sports/planregions). [PlanMetric](https://github.com/crown-sports/planmetric) can convert lengths once you supply dimensions.
 
-One generated apartment plan, one private ONNX model run: original → actual gray channel → actual CLAHE20 channel → final wall mask → red wall overlay → blue centerlines and nodes. **25 paths, 21 nodes**, with no manual edits. The model’s third channel, CLAHE40, is not shown. This run closes some door/window openings and leaves a short living-room divider disconnected. [Source and settings](docs/demo-provenance.md).
+Imported-mask scores describe membership in the supplied mask, not detector confidence. WallGraph does not infer physical scale, door types or a CAD/BIM model.
 
-## Use your wall model
+## Start from a scan
+
+Supply a compatible segmentation model; no public weights are included. [Training and data import](docs/training-guide.md) covers the baseline and file formats.
 
 ```bash
 python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
@@ -58,38 +43,16 @@ wallgraph detect --image /private/plan.png --model /private/wall.onnx \
   --preprocess rgb --wall-classes 1 --device cpu --output runs/prediction
 ```
 
-The ONNX adapter accepts float32 NCHW three-channel input in 0–1 and binary or multiclass segmentation logits. Match preprocessing and wall class IDs to your model. For probability outputs, add `--output-kind probabilities`; dynamic spatial inputs need `--input-size H W`.
+Match preprocessing and class IDs to your model. The adapter accepts float32 NCHW three-channel input in 0–1 and segmentation logits; probability outputs need `--output-kind probabilities`, and dynamic inputs need `--input-size H W`.
 
-From a main source checkout, render the six stages above with your own compatible model:
+[View an actual six-stage ONNX run](examples/simple.png) · [Its inputs and settings](docs/demo-provenance.md). That private model closes some openings and misses a divider. The standalone demo uses ink thresholding, which can also find furniture and text.
 
-```bash
-python tools/render_demo.py --model /private/wall.onnx --preprocess clahe \
-  --wall-classes 1 2 --output /private/steps.png
-```
+The private 30-drawing evaluation found worse wall IoU than raw segmentation and lower downstream region PQ after cleanup. These generated figures are not recognition benchmarks. [Results and limitations](docs/validation.md).
 
-**Bring your own compatible model.** No weights or real datasets are included. The CLI’s simple demo uses ink thresholding, which also finds text and furniture; the six-stage figure uses an actual ONNX segmentation model. Neither example measures recognition accuracy.
+## More
 
-## Problems it helps solve
+[Implementation notes](docs/product.md) · [API and integration](docs/use-cases.md) · [Methods](docs/methods.md) · [Architecture](docs/architecture.md) · [Reproduction](docs/reproduction.md)
 
-| You have | You need | WallGraph provides |
-| --- | --- | --- |
-| A wall mask made of thick pixels | A path to overlay or select in your drawing UI | Centerline polylines with endpoint node IDs |
-| Predictions resized for model inference | Geometry aligned with the source drawing | Masks and paths restored to original coordinates |
-| Different segmentation models | A shared geometry interface | Replaceable ONNX or Python inference backend |
-| Wall predictions for room extraction | An aligned boundary input | A mask and metadata accepted by [PlanRegions](https://github.com/crown-sports/planregions) |
+[Contributing](CONTRIBUTING.md) · [Release checks](docs/releasing.md) · [Security](SECURITY.md)
 
-Furniture, labels and missing thin walls can confuse a model. Keeping the mask beside the geometry lets you inspect these errors before reusing the coordinates. A review editor, CAD/BIM export, door semantics and dimension recognition remain application work. See [integration examples](docs/use-cases.md).
-
-## Measured limits
-
-On 30 annotated drawings using the same private model, validation-selected WallGraph reached wall macro IoU **0.84203**, versus **0.78478** for the legacy final mask and **0.86334** for its raw segmentation. Lower wall recall also reduced downstream region PQ from **0.68034 to 0.56580**. The included training baseline reached IoU **0.59297**; one export check exceeded the selected numerical error threshold. These results support further development, not a production accuracy claim. [Full protocol, intervals and timing](docs/validation.md).
-
-A good pixel score can still hide a broken room boundary. [The generated interactive example](https://crown-sports.github.io/planregions/) shows how one missing wall pixel can merge two regions.
-
-## Documentation
-
-[Training and data import](docs/training-guide.md) · [Methods and papers](docs/methods.md) · [Implementation notes](docs/reproduction.md) · [Architecture](docs/architecture.md) · [GPU runtime](docs/runtime.md)
-
-[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Release checks](docs/releasing.md)
-
-MIT for repository code; external models and data retain their own licenses. [Provenance](NOTICE.md). Software citation: `CITATION.cff`.
+MIT for code and original generated figures. External models and data keep their own licenses. [Provenance](NOTICE.md).

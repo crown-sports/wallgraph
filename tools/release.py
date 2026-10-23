@@ -8,6 +8,7 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
+PUBLIC_IMAGES = {"examples/simple.png", "examples/workflow.png"}
 TOP_LEVEL = {
     "README.md",
     "README.zh-CN.md",
@@ -59,8 +60,8 @@ def public_files() -> list[Path]:
         if path.is_symlink() or not path.is_file():
             raise ValueError("required public file missing or symlinked")
         if path.suffix == ".png":
-            if path.relative_to(ROOT).as_posix() != "examples/simple.png":
-                raise ValueError("only the single reviewed demo image can be published")
+            if path.relative_to(ROOT).as_posix() not in PUBLIC_IMAGES:
+                raise ValueError("only reviewed demo images can be published")
             with Image.open(path) as image:
                 if max(image.size) > 2048:
                     raise ValueError("demo image is larger than the public limit")

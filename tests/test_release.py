@@ -15,7 +15,9 @@ spec.loader.exec_module(release)
 def test_public_export_excludes_models_data_and_generated_results():
     files = release.public_files()
     assert all(path.suffix not in {".onnx", ".pt", ".jsonl", ".npz"} for path in files)
-    assert sum(path.suffix == ".png" for path in files) == 1
+    assert {
+        path.relative_to(release.ROOT).as_posix() for path in files if path.suffix == ".png"
+    } == release.PUBLIC_IMAGES
 
 
 def test_extra_public_image_and_symlink_are_rejected(tmp_path, monkeypatch):
@@ -24,7 +26,7 @@ def test_extra_public_image_and_symlink_are_rejected(tmp_path, monkeypatch):
     (tmp_path / "examples").mkdir()
     unexpected = tmp_path / "examples/private.png"
     unexpected.write_bytes(b"unused")
-    with pytest.raises(ValueError, match="single reviewed"):
+    with pytest.raises(ValueError, match="reviewed demo"):
         release.public_files()
     unexpected.unlink()
     (tmp_path / "examples/link.png").symlink_to(tmp_path / "elsewhere.png")
@@ -32,11 +34,12 @@ def test_extra_public_image_and_symlink_are_rejected(tmp_path, monkeypatch):
         release.public_files()
 
 
-def test_oversized_or_metadata_bearing_demo_is_rejected(tmp_path, monkeypatch):
+@pytest.mark.parametrize("filename", sorted(release.PUBLIC_IMAGES))
+def test_oversized_or_metadata_bearing_demo_is_rejected(tmp_path, monkeypatch, filename):
     monkeypatch.setattr(release, "ROOT", tmp_path)
     monkeypatch.setattr(release, "TOP_LEVEL", set())
     (tmp_path / "examples").mkdir()
-    demo = tmp_path / "examples/simple.png"
+    demo = tmp_path / filename
     Image.new("RGB", (2049, 1)).save(demo)
     with pytest.raises(ValueError, match="public limit"):
         release.public_files()
