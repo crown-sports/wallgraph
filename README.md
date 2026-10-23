@@ -17,6 +17,8 @@ python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
 wallgraph demo --output runs/demo
 ```
 
+Keep original inputs in a separate folder. Reusing an output folder replaces its generated result files.
+
 Open `runs/demo/walls.svg`. `walls.json` contains polylines, endpoint node IDs, pixel thickness and scores; `walls.png` contains the wall mask.
 
 For a mask you already have:

@@ -17,6 +17,8 @@ python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
 wallgraph demo --output runs/demo
 ```
 
+原始输入与结果请分开放；重复使用同一个输出目录，会替换其中生成的结果文件。
+
 打开 `runs/demo/walls.svg` 看结果。`walls.json` 保存墙线、端点节点 ID、像素厚度和分数，`walls.png` 保存墙体掩码。
 
 已有墙体掩码时直接导入：
