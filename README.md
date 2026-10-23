@@ -2,7 +2,7 @@
 
 Extract centerlines and junctions from a binary wall mask, in the original image coordinates.
 
-[中文](README.zh-CN.md) · [v0.2.0](https://github.com/crown-sports/wallgraph/releases/tag/v0.2.0)
+[中文](README.zh-CN.md) · [v0.2.1](https://github.com/crown-sports/wallgraph/releases/tag/v0.2.1)
 
 ![Binary wall mask beside the extracted blue paths and junctions](examples/workflow.png)
 
@@ -13,7 +13,7 @@ Generated example: **11 paths, 7 junctions**, with all 61,849 supplied wall pixe
 Python 3.10+. The small standalone demo needs no model:
 
 ```bash
-python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
+python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.1"
 wallgraph demo --output runs/demo
 ```
 
@@ -40,7 +40,7 @@ Imported-mask scores describe membership in the supplied mask, not detector conf
 Supply a compatible segmentation model; no public weights are included. [Training and data import](docs/training-guide.md) covers the baseline and file formats.
 
 ```bash
-python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
+python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.2.1"
 wallgraph detect --image /private/plan.png --model /private/wall.onnx \
   --preprocess rgb --wall-classes 1 --device cpu --output runs/prediction
 ```

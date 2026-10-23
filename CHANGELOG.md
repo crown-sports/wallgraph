@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 — 2026-10-23 (prerelease)
 
 - Refuse detect outputs that would overwrite the source image or model, including hard links and symlinks.
 - Report ordinary input and output errors with exit code 2 instead of a traceback.
