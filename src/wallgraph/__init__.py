@@ -6,4 +6,4 @@ from .masks import vectorize_mask
 from .pipeline import WallPipeline
 
 __all__ = ["WallConfig", "WallPipeline", "WallResult", "vectorize_mask"]
-__version__ = "0.2.0"
+__version__ = "0.2.1"

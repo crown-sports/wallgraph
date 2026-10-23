@@ -2,7 +2,7 @@
 
 把墙体掩码转成原图坐标下的中心线和交点，方便叠加、选中和测量墙线。
 
-[English](README.md) · [v0.2.0](https://github.com/crown-sports/wallgraph/releases/tag/v0.2.0)
+[English](README.md) · [v0.2.1](https://github.com/crown-sports/wallgraph/releases/tag/v0.2.1)
 
 ![左侧为二值墙体掩码，右侧为实际提取的蓝色墙线和交点](examples/workflow.png)
 
@@ -13,9 +13,11 @@
 Python 3.10+。下面的小型独立 demo 不需要模型：
 
 ```bash
-python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
+python -m pip install "git+https://github.com/crown-sports/wallgraph.git@v0.2.1"
 wallgraph demo --output runs/demo
 ```
+
+原始输入与结果请分开放；重复使用同一个输出目录，会替换其中生成的结果文件。
 
 打开 `runs/demo/walls.svg` 看结果。`walls.json` 保存墙线、端点节点 ID、像素厚度和分数，`walls.png` 保存墙体掩码。
 
@@ -38,7 +40,7 @@ wallgraph vectorize --mask /private/walls.png --output runs/vectorized
 需要自备兼容的分割模型，仓库不提供公开权重。[训练与数据导入](docs/training-guide.zh-CN.md)介绍了基线和文件格式。
 
 ```bash
-python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.2.0"
+python -m pip install "wallgraph[onnx] @ git+https://github.com/crown-sports/wallgraph.git@v0.2.1"
 wallgraph detect --image /private/plan.png --model /private/wall.onnx \
   --preprocess rgb --wall-classes 1 --device cpu --output runs/prediction
 ```

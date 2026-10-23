@@ -1,6 +1,7 @@
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -15,7 +16,21 @@ from .masks import vectorize_mask
 from .pipeline import WallPipeline
 
 
-def main() -> None:
+def _protect_inputs(output: Path, names: tuple[str, ...], sources: tuple[Path | None, ...]) -> None:
+    for name in names:
+        target = output / name
+        for source in sources:
+            if source is not None and (
+                target.resolve() == source.resolve()
+                or (target.exists() and source.exists() and target.samefile(source))
+            ):
+                raise ValueError(
+                    f"output {target} would overwrite input {source}; "
+                    "choose a different --output directory"
+                )
+
+
+def _main() -> None:
     parser = argparse.ArgumentParser(description="Extract walls and their connectivity graph")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("detect", "demo", "evaluate", "benchmark"):
@@ -61,12 +76,7 @@ def main() -> None:
     args = parser.parse_args()
     if args.command == "vectorize":
         try:
-            for name in ("walls.png", "walls.json", "walls.svg"):
-                target = args.output / name
-                if target.resolve() == args.mask.resolve() or (
-                    target.exists() and args.mask.exists() and target.samefile(args.mask)
-                ):
-                    raise ValueError("outputs must not overwrite the source mask")
+            _protect_inputs(args.output, ("walls.png", "walls.json", "walls.svg"), (args.mask,))
             with Image.open(args.mask) as image:
                 mask = np.asarray(image)
             result = vectorize_mask(
@@ -93,6 +103,10 @@ def main() -> None:
 
         export_model(args)
         return
+    if args.command == "detect":
+        _protect_inputs(
+            args.output, ("walls.png", "walls.json", "walls.svg"), (args.image, args.model)
+        )
     if args.device == "cuda" and args.model is None:
         parser.error("--device cuda requires --model")
     if args.model:
@@ -131,6 +145,14 @@ def main() -> None:
         result = pipeline.run(image)
         save_result(result, args.output)
         print(json.dumps({"segment_count": len(result.segments), "metadata": result.metadata}))
+
+
+def main() -> None:
+    try:
+        _main()
+    except (ValueError, OSError, TypeError, KeyError) as error:
+        print(f"wallgraph: {error}", file=sys.stderr)
+        raise SystemExit(2) from None
 
 
 if __name__ == "__main__":
